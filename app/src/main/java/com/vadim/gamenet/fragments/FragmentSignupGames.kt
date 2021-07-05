@@ -109,7 +109,7 @@ class FragmentSignupGames(tempUser: AppUser) : Fragment() {
                 val relevantGame = topResultsArray[position]
                 Log.d(TAG, "OnItemClickListener: picked game: $relevantGame")
                 searchBox.clearSuggestions()
-                tempUser.listOfGames.add(relevantGame)
+                tempUser.games_list.add(relevantGame)
                 populateRecycleView()
             }
 
@@ -121,7 +121,7 @@ class FragmentSignupGames(tempUser: AppUser) : Fragment() {
 
     private fun populateRecycleView() {
         Log.d(TAG, "populateRecycleView: ")
-        val adapter = GameListAdapter(requireContext(), tempUser.listOfGames)
+        val adapter = GameListAdapter(requireContext(), tempUser.games_list)
         gamesList.adapter = adapter
     }
 
@@ -219,7 +219,7 @@ class FragmentSignupGames(tempUser: AppUser) : Fragment() {
             R.anim.exit_to_right
         )
         transaction.replace(R.id.login_signup_frame, FragmentSignupLanguages(requireContext() as RegistrationCallback,tempUser))
-        transaction.addToBackStack("games_transaction")
+//        transaction.addToBackStack("games_transaction")
         transaction.commit()
     }
 }

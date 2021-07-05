@@ -90,8 +90,8 @@ class FragmentSignup : Fragment() {
     private fun moveToUsernameSelection() {
         Log.d(TAG, "moveToUsernameSelection: ")
         val tempUser = AppUser()
-        tempUser.firstName = firstNameBox.text.toString()
-        tempUser.lastName = lastNameBox.text.toString()
+        tempUser.first_name = firstNameBox.text.toString()
+        tempUser.last_name = lastNameBox.text.toString()
         tempUser.email = emailBox.text.toString().toLowerCase()
         tempUser.password = passwordBox.text.toString()
         tempUser.gender = genderList.selectedItem.toString()
@@ -107,7 +107,7 @@ class FragmentSignup : Fragment() {
             R.anim.exit_to_right
         )
         transaction.replace(R.id.login_signup_frame, FragmentSignupUsername(tempUser))
-        transaction.addToBackStack("username_transaction")
+//        transaction.addToBackStack("username_transaction")
         transaction.commit()
 
     }

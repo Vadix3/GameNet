@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1028507697280",
+    "project_id": "gamenet-bf394",
+    "storage_bucket": "gamenet-bf394.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028507697280:android:b075d687dc60d2a008e665",
+        "android_client_info": {
+          "package_name": "com.vadim.playmate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028507697280-f6m5fir4s2rl0ai00gm4brb5ps0ptevp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWBWX_qwXvVrSq3hYHTIJE4FOMcIJ14qE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028507697280-f6m5fir4s2rl0ai00gm4brb5ps0ptevp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

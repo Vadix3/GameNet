@@ -44,7 +44,7 @@ class FragmentSignupLanguages(callback: RegistrationCallback, tempUser: AppUser)
         languagesLayout = mView.findViewById(R.id.signupLanguages_LST_languagesRecycler)
         continueBtn = mView.findViewById(R.id.signupLanguages_BTN_continue)
         continueBtn.setOnClickListener {
-            if (tempUser.spokenLanguages.size == 0) {
+            if (tempUser.spoken_languages.size == 0) {
                 Toast.makeText(requireContext(), "Please select a language", Toast.LENGTH_SHORT)
                     .show()
             } else {
@@ -69,7 +69,7 @@ class FragmentSignupLanguages(callback: RegistrationCallback, tempUser: AppUser)
                     val key = langArray[position]
                     Log.d(TAG, "onItemSelected: selected: $key")
                     Log.d(TAG, "onItemSelected: code: " + plainLanguages.get(key))
-                    tempUser.spokenLanguages.add(key)
+                    tempUser.spoken_languages.add(key)
                     populateLanguageRecycler()
 
                 }
@@ -87,7 +87,7 @@ class FragmentSignupLanguages(callback: RegistrationCallback, tempUser: AppUser)
     private fun populateLanguageRecycler() {
         Log.d(TAG, "populateRecycleView: ")
         val isoList: ArrayList<String> = arrayListOf()
-        for (item in tempUser.spokenLanguages) {
+        for (item in tempUser.spoken_languages) {
             isoList.add(plainLanguages.get(item).toString())
         }
         val adapter = LanguageSelectionAdapter(requireContext(), isoList)

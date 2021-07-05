@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.PlayMate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.GameNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="android:fontFamily">@font/montserrat_regular</item>
         <item name="colorPrimary">@color/purple_500</item>
@@ -34,6 +34,9 @@
         <item name="mt_placeholderColor">@color/searchBarPlaceholderColor</item>
         <item name="mt_highlightedTextColor">@color/searchBarTextHighlightColor</item>
         <item name="background">@drawable/round_edt_border_edges</item>
+    </style>
 
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

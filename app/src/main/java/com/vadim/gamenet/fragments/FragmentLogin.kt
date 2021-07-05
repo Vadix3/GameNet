@@ -18,6 +18,7 @@ import com.vadim.gamenet.activities.MainActivity
 import com.vadim.gamenet.models.AppUser
 import io.realm.mongodb.App
 import io.realm.mongodb.Credentials
+import io.realm.mongodb.User
 
 class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
     private lateinit var signupButton: MaterialButton
@@ -38,6 +39,7 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
         Log.d(TAG, "onCreateView: ")
         val mView = inflater.inflate(R.layout.fragment_login, container, false);
         initViews(mView)
+        loginApp("vadix3@gmail.com", "Vx121212") //TODO: remove after testing
         return mView;
     }
 
@@ -52,7 +54,7 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
             transaction.commit()
         }
         loginButton.setOnClickListener {
-            checkUserInput()
+            checkUserInput() //TODO: remove for testing
         }
 
         emailLayout = mView.findViewById(R.id.login_LAY_emailLayout)
@@ -63,7 +65,7 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
         passwordEdt = mView.findViewById(R.id.login_Edt_passwordEdt)
         passwordEdt.addTextChangedListener { passwordLayout.error = null }
 
-        if(tempUser!=null){
+        if (tempUser != null) {
             emailEdt.setText(tempUser.email)
             passwordEdt.setText(tempUser.password)
         }
@@ -112,7 +114,7 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
                 val user = app.currentUser()
                 if (user != null) {
                     requireActivity().runOnUiThread {
-                        moveToMainActivity()
+                        moveToMainActivity(user)
                     }
                 } else {
                     Log.d(TAG, "loginUser: ")
@@ -132,9 +134,13 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
         }
     }
 
-    private fun moveToMainActivity() {
+    private fun moveToMainActivity(user: User) {
         Log.d(TAG, "moveToMainActivity: ")
-        startActivity(Intent(requireContext(), MainActivity::class.java))
+        val userCustomData = user.customData.toJson().toString()
+        Log.d(TAG, "moveToMainActivity: custom data = $userCustomData")
+        val intent = Intent(requireContext(), MainActivity::class.java)
+        intent.putExtra("custom_data", userCustomData)
+        startActivity(intent)
         requireActivity().finish()
     }
 

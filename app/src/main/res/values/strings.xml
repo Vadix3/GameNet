@@ -19,7 +19,12 @@
     <string name="take_me_to_the_jungle">Take me to the jungle</string>
     <string name="username_question">Username?</string>
     <string name="username">Username</string>
+    <string name="cancel">Cancel</string>
 
+    <string name="ok">Ok</string>
+
+    <string name="permission_denied">Permission Denied!</string>
+    <string name="allow_storage_permission">Please allow storage permission in settings</string>
 
 
     <string name="feed">Feed</string>
@@ -29,6 +34,10 @@
     <string name="gender">Gender</string>
     <string name="like">Like</string>
     <string name="comment">Comment</string>
+    <string name="whats_on_your_mind">Whats on your mind?</string>
+    <string name="send_request">Send Request</string>
+    <string name="add">Add</string>
+
 
 
     <string-array name="gender_list">
