@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PlayMate</string>
+    <string name="app_name">GameNet</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
@@ -20,6 +20,15 @@
     <string name="username_question">Username?</string>
     <string name="username">Username</string>
     <string name="cancel">Cancel</string>
+    <string name="message">Message</string>
+    <string name="type_your_message">Type here...</string>
+    <string name="create_conversation">Create Conversation</string>
+    <string name="group_name">Group Name</string>
+    <string name="select_friends">Select Friends</string>
+
+    <string name="main_feed">Feed</string>
+    <string name="friends">Friends</string>
+
 
     <string name="ok">Ok</string>
 
@@ -37,7 +46,11 @@
     <string name="whats_on_your_mind">Whats on your mind?</string>
     <string name="send_request">Send Request</string>
     <string name="add">Add</string>
+    <string name="approve">Approve</string>
+    <string name="decline">Decline</string>
 
+    <string name="friend_requests">Friend Requests</string>
+    <string name="messages">Messages</string>
 
 
     <string-array name="gender_list">

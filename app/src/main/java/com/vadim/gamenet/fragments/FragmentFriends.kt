@@ -7,15 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.vadim.gamenet.MyAppClass
 import com.vadim.gamenet.MyAppClass.Constants.TAG
 import com.vadim.gamenet.MyAppClass.Constants.app
 import com.vadim.gamenet.R
 import com.vadim.gamenet.adapters.FriendsListAdapter
-import com.vadim.gamenet.adapters.MainFeedAdapter
+import com.vadim.gamenet.dialogs.DialogUserDetails
 import com.vadim.gamenet.models.AppUser
 import com.vadim.gamenet.utils.MongoTools
+import com.vadim.gamenet.utils.ParsingTools
+import org.bson.Document
+import org.json.JSONArray
 
 class FragmentFriends(myUser: AppUser) : Fragment() {
 
@@ -38,31 +39,28 @@ class FragmentFriends(myUser: AppUser) : Fragment() {
     private fun fetchUsersFromDB() {
         Log.d(TAG, "fetchUsersFromDB: ")
         val mongoUser = app.currentUser()
-        val tools = mongoUser?.let {
-            MongoTools(requireContext(),
-                it, object : MongoTools.ResultListener {
-                    override fun getResult(result: Boolean, message: String) {
-                    }
-
-                    override fun getQueriedUsers(
-                        result: Boolean,
-                        message: String,
-                        userList: ArrayList<AppUser>
-                    ) {
-                        if (result) {
-                            Log.d(TAG, "getQueriedUsers: Got: $userList")
-                            friendsList = userList
-                            requireActivity().runOnUiThread {
-                                refreshFriendsList()
-                            }
-                        } else {
-                            Log.d(TAG, "getQueriedUsers: Error: $message")
+        val myFriends = myUser.friends_list
+        if (mongoUser != null) {
+            val tools = MongoTools(requireContext(), mongoUser, object : MongoTools.ResultListener {
+                override fun getResult(result: Boolean, message: kotlin.String) {
+                    if (result) {
+                        Log.d(TAG, "getResult: SUCCESS: $message")
+                        val tempUser = ParsingTools.parseUser(JSONArray(message)[0].toString())
+                        friendsList.add(tempUser)
+                        requireActivity().runOnUiThread {
+                            refreshFriendsList()
                         }
-                    }
 
-                })
+                    } else {
+                        Log.d(TAG, "getResult: ERROR: $message")
+                    }
+                }
+            })
+            for (tempEmail in myFriends) {
+                val query = Document(MongoTools.USER_KEYS.EMAIL, tempEmail)
+                tools.fetchDocumentFromDatabase(mongoUser, "gamenet_users", "custom_data", query)
+            }
         }
-        tools?.fetchUsersFromDB("Vad")
     }
 
     private fun initViews(mView: View?) {
@@ -74,7 +72,12 @@ class FragmentFriends(myUser: AppUser) : Fragment() {
 
     private fun refreshFriendsList() {
         Log.d(TAG, "refreshFriendsList: ")
-        val adapter = FriendsListAdapter(requireContext(), friendsList,myUser)
+        val adapter = FriendsListAdapter(
+            requireContext(),
+            friendsList,
+            myUser,
+            DialogUserDetails.MODE.FRIEND_LIST
+        )
         friendsListRecycler.adapter = adapter
     }
 }

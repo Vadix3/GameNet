@@ -10,14 +10,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
-import com.google.gson.Gson
-import com.vadim.gamenet.MyAppClass
 import com.vadim.gamenet.MyAppClass.Constants.TAG
 import com.vadim.gamenet.R
 import com.vadim.gamenet.models.FeedPost
-import com.vadim.gamenet.models.Game
-import org.bson.Document
-import java.util.*
 import kotlin.collections.ArrayList
 
 class MainFeedAdapter(
@@ -60,10 +55,10 @@ class MainFeedAdapter(
 //        val comments: ArrayList<String> = arrayListOf(),
 //        val postTime: Long = System.currentTimeMillis()
 
-        val content = temp.message
-        val likeCount = temp.likeCount
-        val profilePictureUri = temp.profilePictureUri
-        val posterName = temp.userName
+        val content = temp.content
+        val likeCount = temp.like_count
+        val profilePictureUri = temp.profile_picture_uri
+        val posterName = temp.username
         //TODO: Fetch profile picture uri from user in server
         Glide.with(context).load(profilePictureUri)
             .placeholder(context.getDrawable(R.drawable.ic_baseline_person_24_color))

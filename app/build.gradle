@@ -86,8 +86,11 @@ dependencies {
     //ProgressBar
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
+    //Material searchview
+    implementation 'com.miguelcatalan:materialsearchview:1.4.0'
 
-
+    //Chat bubbles
+    implementation 'com.github.lguipeng:BubbleView:1.0.1'
 
 
 

@@ -30,7 +30,7 @@ class MyAppClass : Application() {
 
 
     companion object Functions {
-        fun displayToast(myContext: Context, message: String) {
+        fun displayToast(myContext: Context, message: kotlin.String) {
             Toast.makeText(myContext, message, Toast.LENGTH_LONG).show()
         }
 
@@ -48,7 +48,7 @@ class MyAppClass : Application() {
     override fun onCreate() {
         super.onCreate()
         Realm.init(this) // context, usually an Activity or Application
-        val appID: String = "gamenet-xopej" // replace this with your App ID "\"${gamenet-xopej}\""
+        val appID: kotlin.String = "gamenet-xopej" // replace this with your App ID "\"${gamenet-xopej}\""
         val app: App = App(AppConfiguration.Builder(appID).build())
 
     }

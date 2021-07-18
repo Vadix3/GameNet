@@ -81,7 +81,6 @@ class LoginSignupActivity : AppCompatActivity(), RegistrationCallback {
             if (it.isSuccess) {
                 val user = app.currentUser()
                 if (user != null) {
-
                     val tools = MongoTools(this, user, object : MongoTools.ResultListener {
                         override fun getResult(result: Boolean, message: String) {
                             if (result) {
@@ -90,14 +89,6 @@ class LoginSignupActivity : AppCompatActivity(), RegistrationCallback {
                             } else {
                                 Log.d(TAG, "getResult: FAILURE: $message")
                             }
-                        }
-
-                        override fun getQueriedUsers(
-                            result: Boolean,
-                            message: String,
-                            userList: ArrayList<AppUser>
-                        ) {
-                            Log.d(TAG, "getResult: SUCCESS: $message")
                         }
                     })
                     tools.saveUserToDatabase(user, tempUser)

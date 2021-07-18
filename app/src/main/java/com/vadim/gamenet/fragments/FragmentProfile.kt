@@ -17,21 +17,32 @@ import com.vadim.gamenet.MyAppClass
 import com.vadim.gamenet.MyAppClass.Constants.STORAGE_PERMISSION_CODE
 import com.vadim.gamenet.MyAppClass.Constants.TAG
 import com.vadim.gamenet.R
+import com.vadim.gamenet.adapters.FriendsListAdapter
 import com.vadim.gamenet.adapters.GameListAdapter
+import com.vadim.gamenet.dialogs.DialogUserDetails
 import com.vadim.gamenet.models.AppUser
+import com.vadim.gamenet.models.FriendRequest
+import com.vadim.gamenet.models.Message
 import com.vadim.gamenet.utils.FirebaseTools
 import com.vadim.gamenet.utils.MongoTools
+import com.vadim.gamenet.utils.ParsingTools
 import io.realm.mongodb.App
+import org.bson.Document
+import org.json.JSONArray
 
 class FragmentProfile(myUser: AppUser) : Fragment() {
 
     private val myUser = myUser
     private val app: App = MyAppClass.Constants.app
+    private val mongoAppUser = app.currentUser()
+    private val messagesList = arrayListOf<Message>()
+    private val requestList = arrayListOf<FriendRequest>()
+    private val requestingFriends = arrayListOf<AppUser>()
     private lateinit var profileImageView: ShapeableImageView
     private lateinit var userNameLbl: TextView
     private lateinit var fullNameLbl: TextView
-    private lateinit var gamesListView: RecyclerView
-    private lateinit var messageListView: RecyclerView
+    private lateinit var messagesListView: RecyclerView
+    private lateinit var requestsListView: RecyclerView
 
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -75,7 +86,8 @@ class FragmentProfile(myUser: AppUser) : Fragment() {
         val mongoUser = app.currentUser()
         val mongoTools = mongoUser?.let {
             MongoTools(requireContext(),
-                it, object : MongoTools.ResultListener {
+                it,
+                object : MongoTools.ResultListener {
                     override fun getResult(result: Boolean, message: String) {
                         if (result) {
                             Log.d(TAG, "getResult: Success: $message")
@@ -84,18 +96,13 @@ class FragmentProfile(myUser: AppUser) : Fragment() {
                             Log.d(TAG, "getResult: Error: $message")
                         }
                     }
-
-                    override fun getQueriedUsers(
-                        result: Boolean,
-                        message: String,
-                        userList: ArrayList<AppUser>
-                    ) {
-                        Log.d(TAG, "getQueriedUsers: ")
-                    }
                 })
         }
-        mongoTools?.saveUserCustomData(MongoTools.KEYS.PHOTO_URL, imageUrl, myUser.email)
-
+        mongoTools?.saveUserCustomData(
+            MongoTools.USER_KEYS.PHOTO_URL,
+            imageUrl,
+            myUser.email
+        )
     }
 
     override fun onCreateView(
@@ -106,8 +113,86 @@ class FragmentProfile(myUser: AppUser) : Fragment() {
         Log.d(TAG, "onCreateView with user:$myUser ")
         val mView = inflater.inflate(R.layout.fragment_profile, container, false)
         initViews(mView)
+        fetchMessages()
+        fetchRequests()
         return mView;
     }
+
+    /** A method to fetch the requests for the current user*/
+    private fun fetchRequests() {
+        Log.d(TAG, "fetchRequests: ")
+        val user = app.currentUser()
+        if (user != null) {
+            val tools = app.currentUser()?.let {
+                MongoTools(requireContext(), it, object : MongoTools.ResultListener {
+                    override fun getResult(result: Boolean, message: String) {
+                        if (result && (message != "[]")) {
+                            Log.d(TAG, "getResult: SUCCESS fetch requests: $message")
+                            val requestsJson = JSONArray(message)
+                            for (i in 0 until requestsJson.length()) {
+                                Log.d(TAG, "getResult: ${requestsJson[i]}")
+                                val tempRequest =
+                                    ParsingTools.parseFriendRequest(requestsJson[i].toString())
+                                requestList.add(tempRequest)
+                                fetchRequestingUsers()
+                            }
+                            Log.d(TAG, "getResult: request list: $requestList")
+                        } else {
+                            Log.d(TAG, "getResult: ERROR: $message")
+                        }
+                    }
+
+                })
+            }
+            val query = Document(MongoTools.FRIEND_REQUEST_KEYS.RECEIVER, myUser.email)
+            Log.d(TAG, "fetchRequests: fetching document with query:$query")
+            tools?.fetchDocumentFromDatabase(user, "gamenet_users", "friend_requests", query)
+        }
+    }
+
+    /** A method to fetch the users that request friendship*/
+    private fun fetchRequestingUsers() {
+        Log.d(TAG, "fetchRequestingUsers: ")
+        if (mongoAppUser != null) {
+            val tools =
+                MongoTools(requireContext(), mongoAppUser, object : MongoTools.ResultListener {
+                    override fun getResult(result: Boolean, message: String) {
+                        if (result && message != "[]") {
+                            Log.d(TAG, "getResult: SUCCESS got user: $message")
+                            val resultJson = JSONArray(message)
+                            for (i in 0 until resultJson.length()) {
+                                val tempUser = ParsingTools.parseUser(resultJson[i].toString())
+                                Log.d(TAG, "getResult: temp user = $tempUser")
+                                requestingFriends.add(tempUser)
+                            }
+                            Log.d(TAG, "getResult: requesting friends: $requestingFriends")
+                            requireActivity().runOnUiThread {
+                                val adapter =
+                                    FriendsListAdapter(
+                                        requireContext(),
+                                        requestingFriends,
+                                        myUser,
+                                        DialogUserDetails.MODE.PROFILE_PAGE
+                                    )
+                                requestsListView.adapter = adapter
+                            }
+                        } else {
+                            Log.d(TAG, "getResult: FAILURE: $message")
+                        }
+                    }
+                })
+            for (i in requestList) {
+                val tempQuery = i.sender
+                val query = Document(MongoTools.USER_KEYS.EMAIL, tempQuery)
+                tools.fetchDocumentFromDatabase(mongoAppUser, "gamenet_users", "custom_data", query)
+            }
+        }
+    }
+
+    private fun fetchMessages() {
+        Log.d(TAG, "fetchMessages: ")
+    }
+
 
     private fun initViews(mView: View) {
         Log.d(TAG, "initViews: ")
@@ -122,11 +207,12 @@ class FragmentProfile(myUser: AppUser) : Fragment() {
         userNameLbl.text = myUser.username
         fullNameLbl = mView.findViewById(R.id.fragmentProfile_LBL_fullName)
         fullNameLbl.text = "${myUser.first_name.capitalize()} ${myUser.last_name.capitalize()}"
-        messageListView = mView.findViewById(R.id.fragmentProfile_LST_messages)
+
+        messagesListView = mView.findViewById(R.id.fragmentProfile_LST_messages)
+        requestsListView = mView.findViewById(R.id.fragmentProfile_LST_requests)
     }
 
-    private fun checkForPermissions(STORAGE_PERMISSION_CODE: Int): Boolean {
-        Log.d(TAG, "checkForPermissions: ")
+    private fun checkForPermissions(storagePermissionCode: Int): Boolean {
         return true
     }
 }

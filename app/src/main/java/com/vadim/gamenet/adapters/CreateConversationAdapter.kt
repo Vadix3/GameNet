@@ -1,13 +1,10 @@
 package com.vadim.gamenet.adapters
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -16,33 +13,36 @@ import com.google.android.material.card.MaterialCardView
 import com.vadim.gamenet.MyAppClass
 import com.vadim.gamenet.MyAppClass.Constants.TAG
 import com.vadim.gamenet.R
-import com.vadim.gamenet.dialogs.DialogUserDetails
+import com.vadim.gamenet.interfaces.SelectedFriendsCallback
 import com.vadim.gamenet.models.AppUser
 
 
-class FriendsListAdapter(
+class CreateConversationAdapter(
     context: Context,
-    private val dataSet: ArrayList<AppUser>, srcUser: AppUser, mode: Int
+    private val dataSet: ArrayList<AppUser>,
+    srcUser: AppUser,
+    selectedListener: SelectedFriendsCallback
 ) :
-    RecyclerView.Adapter<FriendsListAdapter.ViewHolder>() {
+    RecyclerView.Adapter<CreateConversationAdapter.ViewHolder>() {
 
     private var context: Context = context
     private val sourceUser = srcUser
-    private val mode = mode
+    private val listener = selectedListener
+    private val selectedItems = BooleanArray(srcUser.friends_list.size)
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var v: View = view
-        var friendImage: ImageView = v.findViewById(R.id.friendsRow_IMG_friendPhoto)
-        var friendUsername: TextView = v.findViewById(R.id.friendsRow_LBL_friendUsername)
-        var rowCard: MaterialCardView = v.findViewById(R.id.friendsRow_LAY_mainCard)
+        var friendImage: ImageView = v.findViewById(R.id.createConversation_IMG_friendPhoto)
+        var friendUsername: TextView = v.findViewById(R.id.createConversation_LBL_friendUsername)
+        var rowCard: MaterialCardView = v.findViewById(R.id.createConversation_LAY_mainCard)
     }
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.row_friend_list_item, viewGroup, false)
-        Log.d(TAG, "onCreateViewHolder: $dataSet ${sourceUser.email}")
+            .inflate(R.layout.row_create_conversation_item, viewGroup, false)
+        Log.d(MyAppClass.Constants.TAG, "onCreateViewHolder: $dataSet ${sourceUser.email}")
         return ViewHolder(view)
     }
 
@@ -54,20 +54,29 @@ class FriendsListAdapter(
         Glide.with(context)
             .load(temp.photo_url)
             .into(viewHolder.friendImage)
+        viewHolder.rowCard.setBackgroundColor(context.resources.getColor(R.color.white))
         viewHolder.rowCard.setOnClickListener {
             Log.d(TAG, "onBindViewHolder: Clicked on: ${temp.username}")
-            openUserDetailsDialog(temp)
+            if (selectedItems[position]) {
+                deselectRow(viewHolder.rowCard, position)
+            } else {
+                selectRow(viewHolder.rowCard, position)
+            }
+            listener.getSelectedItems(selectedItems)
+
         }
     }
 
-    private fun openUserDetailsDialog(temp: AppUser) {
-        Log.d(TAG, "openUserDetailsDialog: $temp")
-        val dialog = DialogUserDetails(context, temp, sourceUser, mode)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.show()
-        val width = (context.resources.displayMetrics.widthPixels * 0.8).toInt()
-        dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
-        dialog.window!!.setDimAmount(0.9f)
+    private fun selectRow(rowCard: MaterialCardView, position: Int) {
+        Log.d(TAG, "selectRow: ")
+        selectedItems[position] = true
+        rowCard.setBackgroundColor(context.resources.getColor(R.color.colorSecondary))
+    }
+
+    private fun deselectRow(rowCard: MaterialCardView, position: Int) {
+        Log.d(TAG, "deselectRow: ")
+        selectedItems[position] = false
+        rowCard.setBackgroundColor(context.resources.getColor(R.color.white))
     }
 
     override fun getItemCount() = dataSet.size

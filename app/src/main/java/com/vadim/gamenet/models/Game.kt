@@ -1,5 +1,7 @@
 package com.vadim.gamenet.models
 
+import kotlin.String
+
 class Game(
     val id: Int = 0,
     val name: String = "",

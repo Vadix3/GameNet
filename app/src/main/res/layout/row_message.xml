@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/messageRow_LAY_outerContainer"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/messageRow_LAY_mainLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/left_bubble"
+        android:orientation="vertical"
+        android:paddingVertical="15dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="10dp">
+
+        <TextView
+            android:id="@+id/messageRow_LBL_sender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/messageRow_LBL_message"
+            android:text="UserName"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/messageRow_LBL_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="This is a custom message for testing"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/messageRow_LBL_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/messageRow_LBL_message"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:text="20:33"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+</LinearLayout>

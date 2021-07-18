@@ -17,13 +17,13 @@ import com.vadim.gamenet.R
 import com.vadim.gamenet.adapters.MainFeedAdapter
 import com.vadim.gamenet.models.AppUser
 import com.vadim.gamenet.models.FeedPost
-import io.realm.mongodb.App
+import com.vadim.gamenet.utils.MongoTools
+import com.vadim.gamenet.utils.ParsingTools
 import io.realm.mongodb.mongo.MongoClient
 import io.realm.mongodb.mongo.MongoCollection
 import io.realm.mongodb.mongo.MongoDatabase
 import org.bson.Document
-import org.json.JSONObject
-import java.util.*
+import org.json.JSONArray
 import kotlin.collections.ArrayList
 
 
@@ -31,7 +31,8 @@ class FragmentMainFeed(myUser: AppUser) : Fragment() {
 
     private lateinit var addPostButton: FloatingActionButton
     private lateinit var mainFeedList: RecyclerView
-    private lateinit var app: App
+    private val app = MyAppClass.Constants.app
+    private val mongoUser = app.currentUser()
     private val mainFeedPosts: ArrayList<FeedPost> = arrayListOf()
     private lateinit var mongoClient: MongoClient
     private lateinit var mongoDatabase: MongoDatabase
@@ -45,51 +46,37 @@ class FragmentMainFeed(myUser: AppUser) : Fragment() {
     ): View? {
         Log.d(TAG, "onCreateView: ")
         val mView = inflater.inflate(R.layout.fragment_main_feed, container, false)
-        app = MyAppClass.Constants.app
         initViews(mView)
-        Thread {
-            populateFeed()
-        }.start()
+        populateFeed()
         return mView;
     }
 
     private fun populateFeed() {
         Log.d(TAG, "populateFeed: ${app.currentUser()?.id}")
-        val mongoClient: MongoClient =
-            app.currentUser()
-                ?.getMongoClient("mongodb-atlas")!! // service for MongoDB Atlas cluster containing custom user data
-        val mongoDatabase: MongoDatabase =
-            mongoClient.getDatabase("feed_db")!!
-        val mongoCollection: MongoCollection<Document> =
-            mongoDatabase.getCollection("posts")!!
-        val itemsIterator = mongoCollection.find().iterator().get()
-        while (itemsIterator.hasNext()) {
-            val temp = itemsIterator.next().toJson().toString()
-            mainFeedPosts.add(parseDocument(temp))
+        if (mongoUser != null) {
+            val tools = MongoTools(requireContext(), mongoUser, object : MongoTools.ResultListener {
+                override fun getResult(result: Boolean, message: String) {
+                    if (result) {
+                        Log.d(TAG, "populateFeed: SUCCESS: $message")
+                        val plainJsonArray = JSONArray(message)
+                        for (i in 0 until plainJsonArray.length()) {
+                            val tempPost =
+                                ParsingTools.parsePost(plainJsonArray.get(i).toString())
+                            mainFeedPosts.add(tempPost)
+                            requireActivity().runOnUiThread {
+                                refreshPostsUI()
+                            }
+                        }
+                    } else {
+                        Log.d(TAG, "populateFeed: FAILURE: $message")
+                    }
+                }
+            })
+            tools.fetchDocumentFromDatabase(
+                mongoUser, "feed_db", "posts",
+                Document("find", "any")
+            )
         }
-        requireActivity().runOnUiThread {
-            refreshPostsUI()
-        }
-    }
-
-    private fun parseDocument(document: String): FeedPost {
-        Log.d(TAG, "parseDocument: $document")
-        val tempPost = FeedPost()
-        val tempPostJson = JSONObject(document)
-        tempPost.id = (tempPostJson.get("_id") as JSONObject).get("\$oid") as String
-        tempPost.comments = Gson()
-            .fromJson(
-                tempPostJson.get("comments") as String,
-                ArrayList::class.java
-            ) as ArrayList<String>
-        tempPost.userId = tempPostJson.get("user") as String
-        tempPost.userName = tempPostJson.get("username") as String
-        tempPost.profilePictureUri = tempPostJson.get("image_uri") as String
-        tempPost.likeCount = tempPostJson.get("like_count") as Int
-        tempPost.message = tempPostJson.get("content") as String
-        tempPost.postTime =
-            ((tempPostJson.get("post_time") as JSONObject).get("\$numberLong") as String).toLong()
-        return tempPost
     }
 
     /**
@@ -129,51 +116,35 @@ class FragmentMainFeed(myUser: AppUser) : Fragment() {
 
     private fun addNewPost(content: String) {
         Log.d(TAG, "addNewPost: ")
-        mongoClient = app.currentUser()?.getMongoClient("mongodb-atlas")!!
-        mongoDatabase = mongoClient.getDatabase("feed_db")!!
-        mongoCollection = mongoDatabase.getCollection("posts")!!
-        val tempPost = app.currentUser()?.id?.let {
-            FeedPost(
-                UUID.randomUUID().toString(),
-                it,
-                myUser.username,
-                myUser.photo_url,
-                0,
-                content,
-                arrayListOf(),
-                System.currentTimeMillis()
-            )
-        }
-
-        if (tempPost != null) {
-            mongoCollection.insertOne(
-                Document("post_id", tempPost.id)
-                    .append("user", app.currentUser()?.id)
-                    .append("username", myUser.username)
-                    .append("image_uri", myUser.photo_url)
-                    .append("like_count", tempPost.likeCount)
-                    .append("content", tempPost.message)
-                    .append("post_time", tempPost.postTime)
-                    .append("comments", Gson().toJson(arrayListOf<String>()))
-            )
-                .getAsync { result ->
-                    if (result.isSuccess) {
-                        Log.v(
-                            TAG,
-                            "Inserted custom user data document. _id of inserted document: ${result.get().insertedId}"
-                        )
-                        mainFeedPosts.add(FeedPost())
+        val post = FeedPost()
+        val tools = mongoUser?.let {
+            MongoTools(requireContext(), it, object : MongoTools.ResultListener {
+                override fun getResult(result: Boolean, message: String) {
+                    if (result) {
+                        Log.d(TAG, "getResult add document: SUCCESS: $message")
+                        mainFeedPosts.add(post)
                         requireActivity().runOnUiThread {
                             refreshPostsUI()
                         }
                     } else {
-                        Log.e(
-                            TAG,
-                            "Unable to insert custom user data. Error: ${result.error}"
-                        )
-                        //TODO:Handle problems with details
+                        Log.d(TAG, "getResult add document: FAILURE: $message")
                     }
                 }
+            })
+        }
+        post.user_id = myUser.user_id
+        post.username = myUser.username
+        post.profile_picture_uri = myUser.photo_url
+        post.content = content
+
+        if (mongoUser != null) {
+            tools?.addDocumentToDatabase(
+                mongoUser,
+                "feed_db",
+                "posts",
+                MongoTools.TYPE.POST,
+                Gson().toJson(post)
+            )
         }
     }
 

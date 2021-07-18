@@ -10,5 +10,6 @@
     <color name="colorPrimary">#7C4DFF</color>
     <color name="hintColor">#59808080</color>
     <color name="colorSecondary">#639CD9</color>
-
+    <color name="blueHint">#197FBDFF</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>

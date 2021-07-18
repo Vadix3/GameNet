@@ -36,11 +36,11 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(TAG, "onCreateView: ")
+        Log.d(TAG, "onCreateView: fragmentLogin ")
         val mView = inflater.inflate(R.layout.fragment_login, container, false);
         initViews(mView)
         loginApp("vadix3@gmail.com", "Vx121212") //TODO: remove after testing
-        return mView;
+        return mView
     }
 
     @ExperimentalStdlibApi
@@ -54,7 +54,7 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
             transaction.commit()
         }
         loginButton.setOnClickListener {
-            checkUserInput() //TODO: remove for testing
+            checkUserInput()
         }
 
         emailLayout = mView.findViewById(R.id.login_LAY_emailLayout)

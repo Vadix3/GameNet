@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.GameNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.GameNet" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="android:fontFamily">@font/montserrat_regular</item>
         <item name="colorPrimary">@color/purple_500</item>
@@ -19,6 +19,29 @@
         <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
+    <style name="MaterialSearchViewStyle">
+        <!-- Background for the search bar -->
+        <item name="searchBackground">@color/white</item>
+
+        <!-- Change voice icon -->
+        <item name="searchVoiceIcon">@drawable/ic_baseline_keyboard_voice_24</item>
+
+        <!-- Change clear text icon -->
+        <item name="searchCloseIcon">@drawable/ic_baseline_close_24</item>
+
+        <!-- Change up icon -->
+        <item name="searchBackIcon">@drawable/ic_baseline_arrow_back_24</item>
+
+        <!-- Change icon for the suggestions -->
+        <item name="searchSuggestionIcon">@drawable/ic_suggestion</item>
+
+        <!-- Change background for the suggestions list view -->
+        <item name="searchSuggestionBackground">@color/white</item>
+
+
+        <!-- Hint for edit text -->
+        <item name="android:hint">@string/search_hint</item>
+    </style>
 
     <style name="SearchBarTheme" parent="MaterialSearchBarLight">
         <item name="mt_searchBarColor">@color/searchBarPrimaryColor</item>
