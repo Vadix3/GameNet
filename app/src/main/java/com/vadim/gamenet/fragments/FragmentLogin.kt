@@ -39,7 +39,7 @@ class FragmentLogin(app: App?, tempUser: AppUser?) : Fragment() {
         Log.d(TAG, "onCreateView: fragmentLogin ")
         val mView = inflater.inflate(R.layout.fragment_login, container, false);
         initViews(mView)
-        loginApp("vadix3@gmail.com", "Vx121212") //TODO: remove after testing
+//        loginApp("vadix3@gmail.com", "Vx121212") //TODO: remove after testing
         return mView
     }
 
